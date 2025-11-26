@@ -1,8 +1,5 @@
 #pragma once
-
-#include "../core/Component.hpp"
-
-namespace rtype::engine {
+#include "engine/core/Component.hpp"
 
 class Velocity : public Component {
 public:
@@ -12,5 +9,3 @@ public:
     float x;
     float y;
 };
-
-}

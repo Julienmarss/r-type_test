@@ -1,10 +1,7 @@
 #pragma once
-
 #include <SFML/Graphics.hpp>
 #include <memory>
 #include <string>
-
-namespace rtype::engine {
 
 class Renderer {
 public:
@@ -24,5 +21,3 @@ public:
 private:
     std::unique_ptr<sf::RenderWindow> window;
 };
-
-}

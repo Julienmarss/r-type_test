@@ -1,17 +1,14 @@
 #pragma once
-
-#include "../core/Component.hpp"
+#include "engine/core/Component.hpp"
 #include <SFML/Graphics.hpp>
 #include <string>
 #include <memory>
-
-namespace rtype::engine {
 
 class Sprite : public Component {
 public:
     Sprite();
     explicit Sprite(const std::string& texturePath);
-    ~Sprite();
+    ~Sprite() override;
 
     bool loadTexture(const std::string& path);
     void setScale(float scaleX, float scaleY);
@@ -21,8 +18,6 @@ public:
     const sf::Sprite& getSprite() const;
 
 private:
-    std::unique_ptr<sf::Texture> texture;
+    std::shared_ptr<sf::Texture> texture;
     sf::Sprite sprite;
 };
-
-}

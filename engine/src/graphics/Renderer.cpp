@@ -1,7 +1,5 @@
 #include "engine/graphics/Renderer.hpp"
 
-namespace rtype::engine {
-
 Renderer::Renderer(int width, int height, const std::string& title) {
     window = std::make_unique<sf::RenderWindow>(
         sf::VideoMode(width, height),
@@ -38,6 +36,4 @@ bool Renderer::pollEvent(sf::Event& event) {
 
 sf::RenderWindow& Renderer::getWindow() {
     return *window;
-}
-
 }

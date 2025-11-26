@@ -1,8 +1,6 @@
 #include "engine/graphics/Sprite.hpp"
 #include <iostream>
 
-namespace rtype::engine {
-
 Sprite::Sprite() : texture(nullptr) {
 }
 
@@ -10,18 +8,21 @@ Sprite::Sprite(const std::string& texturePath) : texture(nullptr) {
     loadTexture(texturePath);
 }
 
-Sprite::~Sprite() {
-}
+Sprite::~Sprite() = default;
 
 bool Sprite::loadTexture(const std::string& path) {
-    texture = std::make_unique<sf::Texture>();
+    // Créer une nouvelle texture avec shared_ptr
+    texture = std::make_shared<sf::Texture>();
     
     if (!texture->loadFromFile(path)) {
-        std::cerr << "Failed to load texture: " << path << std::endl;
+        std::cerr << "❌ Failed to load texture: " << path << std::endl;
+        texture.reset();
         return false;
     }
     
-    sprite.setTexture(*texture);
+    // Lier le sprite à la texture
+    sprite.setTexture(*texture, true);
+    
     return true;
 }
 
@@ -39,6 +40,4 @@ sf::Sprite& Sprite::getSprite() {
 
 const sf::Sprite& Sprite::getSprite() const {
     return sprite;
-}
-
 }

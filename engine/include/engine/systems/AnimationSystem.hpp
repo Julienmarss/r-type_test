@@ -1,9 +1,9 @@
 #pragma once
 #include "engine/core/System.hpp"
 
-class MovementSystem : public System {
+class AnimationSystem : public System {
 public:
-    MovementSystem();
+    AnimationSystem();
     
     void update(float deltaTime, const std::vector<std::unique_ptr<Entity>>& entities) override;
 };

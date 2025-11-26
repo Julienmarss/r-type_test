@@ -1,9 +1,14 @@
 #pragma once
 #include "engine/core/System.hpp"
 
-class MovementSystem : public System {
+class Renderer;
+
+class InputSystem : public System {
 public:
-    MovementSystem();
+    explicit InputSystem(Renderer& renderer);
     
     void update(float deltaTime, const std::vector<std::unique_ptr<Entity>>& entities) override;
+
+private:
+    Renderer& renderer;
 };

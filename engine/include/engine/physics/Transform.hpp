@@ -1,8 +1,5 @@
 #pragma once
-
-#include "../core/Component.hpp"
-
-namespace rtype::engine {
+#include "engine/core/Component.hpp"
 
 class Transform : public Component {
 public:
@@ -15,5 +12,3 @@ public:
     float scaleX;
     float scaleY;
 };
-
-}

@@ -1,9 +1,12 @@
 #pragma once
 #include "engine/core/System.hpp"
 
-class MovementSystem : public System {
+class ScrollingBackgroundSystem : public System {
 public:
-    MovementSystem();
+    explicit ScrollingBackgroundSystem(float windowWidth);
     
     void update(float deltaTime, const std::vector<std::unique_ptr<Entity>>& entities) override;
+
+private:
+    float windowWidth;
 };

@@ -3,48 +3,64 @@
 #include <engine/core/Entity.hpp>
 #include <engine/graphics/Sprite.hpp>
 #include <engine/physics/Transform.hpp>
+#include <engine/physics/Velocity.hpp>
+#include <engine/gameplay/Controllable.hpp>
 #include <engine/systems/RenderSystem.hpp>
+#include <engine/systems/MovementSystem.hpp>
+#include <engine/systems/ScrollingBackgroundSystem.hpp>
+#include <engine/systems/InputSystem.hpp>
+#include <engine/systems/BoundarySystem.hpp>
+#include <engine/systems/ShootingSystem.hpp>
 #include <SFML/Window/Event.hpp>
-#include <SFML/Graphics/Texture.hpp>
 #include <iostream>
-#include <cmath>
 
 int main() {
     const float windowWidth = 1280.f;
     const float windowHeight = 720.f;
 
-    rtype::engine::Renderer renderer(windowWidth, windowHeight, "R-Type");
-    rtype::engine::Scene scene;
-    scene.addSystem(std::make_unique<rtype::engine::RenderSystem>());
+    Renderer renderer(windowWidth, windowHeight, "R-Type");
+    Scene scene;
+    
+    // === SYSTEMS ===
+    scene.addSystem(std::make_unique<InputSystem>(renderer));
+    scene.addSystem(std::make_unique<ShootingSystem>(scene, windowWidth));  // ✅ AJOUTER ICI !
+    scene.addSystem(std::make_unique<MovementSystem>());
+    scene.addSystem(std::make_unique<BoundarySystem>(0.f, windowWidth - 130.f, 0.f, windowHeight - 90.f));
+    scene.addSystem(std::make_unique<ScrollingBackgroundSystem>(windowWidth));
+    scene.addSystem(std::make_unique<RenderSystem>());
 
-    sf::Texture debugTexture;
-    if (!debugTexture.loadFromFile("assets/sprites/background.png")) {
-        std::cerr << "ERROR: Unable to load background.png\n";
-        return 1;
-    }
+    // === BACKGROUND ===
+    Entity& bg1 = scene.createEntity();
+    bg1.addComponent(std::make_unique<Sprite>("assets/sprites/background.png"));
+    bg1.addComponent(std::make_unique<Transform>(0.f, 0.f));
+    bg1.addComponent(std::make_unique<Velocity>(-100.f, 0.f));
 
-    const float bgW = debugTexture.getSize().x;
-    const float bgH = debugTexture.getSize().y;
-    const float scale = 1.0f;
-    float displayedW = bgW * scale;
-    float displayedH = bgH * scale;
-    float offsetY = (windowHeight - displayedH) / 2.0f;
-    float scrollOffset = 0.f;
-    float scrollSpeed = 100.f;
+    Entity& bg2 = scene.createEntity();
+    bg2.addComponent(std::make_unique<Sprite>("assets/sprites/background.png"));
+    bg2.addComponent(std::make_unique<Transform>(windowWidth, 0.f));
+    bg2.addComponent(std::make_unique<Velocity>(-100.f, 0.f));
 
-    rtype::engine::Entity& bg1 = scene.createEntity();
-    bg1.addComponent("Sprite", std::make_unique<rtype::engine::Sprite>("assets/sprites/background.png"));
-    auto t1 = std::make_unique<rtype::engine::Transform>(0, offsetY);
-    t1->scaleX = scale;
-    t1->scaleY = scale;
-    bg1.addComponent("Transform", std::move(t1));
+    // === PLAYER ===
+    Entity& player = scene.createEntity();
+    
+    auto playerSprite = std::make_unique<Sprite>("assets/sprites/player.png");
+    playerSprite->getSprite().setTextureRect(sf::IntRect(0, 30, 316, 160));
+    player.addComponent(std::move(playerSprite));
+    
+    auto playerTransform = std::make_unique<Transform>(100.f, windowHeight / 2.f - 80.f);
+    playerTransform->scaleX = 0.5f;
+    playerTransform->scaleY = 0.5f;
+    player.addComponent(std::move(playerTransform));
+    
+    // ✅ AJOUTER CES DEUX LIGNES !
+    player.addComponent(std::make_unique<Velocity>(0.f, 0.f));
+    player.addComponent(std::make_unique<Controllable>(250.f));
 
-    rtype::engine::Entity& bg2 = scene.createEntity();
-    bg2.addComponent("Sprite", std::make_unique<rtype::engine::Sprite>("assets/sprites/background.png"));
-    auto t2 = std::make_unique<rtype::engine::Transform>(displayedW, offsetY);
-    t2->scaleX = scale;
-    t2->scaleY = scale;
-    bg2.addComponent("Transform", std::move(t2));
+    std::cout << "=== R-TYPE CLIENT ===" << std::endl;
+    std::cout << "Controls:" << std::endl;
+    std::cout << "  Move: Arrow Keys or ZQSD" << std::endl;
+    std::cout << "  Shoot: TAP Space (normal)" << std::endl;
+    std::cout << "  Charged Shot: HOLD Space 2s (piercing)" << std::endl;
 
     sf::Clock clock;
 
@@ -53,29 +69,12 @@ int main() {
 
         sf::Event event;
         while (renderer.pollEvent(event)) {
-            if (event.type == sf::Event::Closed)
+            if (event.type == sf::Event::Closed) {
                 renderer.close();
+            }
         }
 
-        scrollOffset -= scrollSpeed * dt;
-
-        float x1 = fmod(scrollOffset, displayedW);
-        if (x1 > 0)
-            x1 -= displayedW;
-
-        float x2 = x1 + displayedW;
-
-        auto tr1 = static_cast<rtype::engine::Transform*>(bg1.getComponent("Transform"));
-        auto tr2 = static_cast<rtype::engine::Transform*>(bg2.getComponent("Transform"));
-
-        tr1->x = x1;
-        tr2->x = x2;
-
-        static float logTimer = 0.f;
-        logTimer += dt;
-        if (logTimer >= 1.f) {
-            logTimer = 0.f;
-        }
+        scene.update(dt);
 
         renderer.clear(sf::Color::Black);
         scene.render(renderer);
