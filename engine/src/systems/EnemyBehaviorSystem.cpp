@@ -21,7 +21,6 @@ void EnemyBehaviorSystem::update(float deltaTime, const std::vector<std::unique_
 
         switch (enemy->type) {
         case EnemyType::Basic:
-            // mouvement tout droit (géré principalement par MovementSystem via Velocity)
             velocity->x = enemy->baseSpeedX;
             velocity->y = enemy->baseSpeedY;
             break;

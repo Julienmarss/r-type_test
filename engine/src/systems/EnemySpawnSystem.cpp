@@ -50,6 +50,5 @@ void EnemySpawnSystem::spawnBasicEnemy()
 
     enemy.addComponent(std::make_unique<Health>(50.f));
 
-    // Taille approximative pour les collisions
     enemy.addComponent(std::make_unique<Hitbox>(80.f, 60.f));
 }

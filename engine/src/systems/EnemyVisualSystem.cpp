@@ -12,7 +12,6 @@ void EnemyVisualSystem::update(float, const std::vector<std::unique_ptr<Entity>>
         if (!enemy || !transform)
             continue;
 
-        // Si l'entité a déjà un sprite, ne rien faire
         if (entity->hasComponent<Sprite>())
             continue;
 

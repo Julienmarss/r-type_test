@@ -16,7 +16,6 @@ void CollisionSystem::update(float deltaTime, const std::vector<std::unique_ptr<
 {
     (void)deltaTime;
 
-    // On cherche collisions : projectiles joueurs -> ennemis
     for (const auto& projEntity : entities) {
         auto* projectile = projEntity->getComponent<Projectile>();
         auto* projTransform = projEntity->getComponent<Transform>();
@@ -25,7 +24,7 @@ void CollisionSystem::update(float deltaTime, const std::vector<std::unique_ptr<
         if (!projectile || !projTransform || !projHitbox)
             continue;
         if (!projectile->isPlayerProjectile)
-            continue; // plus tard : projectiles ennemis
+            continue;
 
         for (const auto& enemyEntity : entities) {
             auto* enemy = enemyEntity->getComponent<Enemy>();
@@ -43,7 +42,6 @@ void CollisionSystem::update(float deltaTime, const std::vector<std::unique_ptr<
                 health->currentHp -= projectile->damage;
             }
 
-            // détruire projectile sauf s'il est piercing
             if (!projectile->piercing) {
                 scene.markEntityForDestruction(projEntity->getID());
             }
