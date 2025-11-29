@@ -27,8 +27,6 @@ void Scene::markEntityForDestruction(EntityID id) {
 void Scene::cleanupMarkedEntities() {
     if (markedForDestruction.empty()) return;
     
-    int count = markedForDestruction.size();
-    
     entities.erase(
         std::remove_if(entities.begin(), entities.end(),
             [this](const std::unique_ptr<Entity>& entity) {
@@ -37,8 +35,6 @@ void Scene::cleanupMarkedEntities() {
             }),
         entities.end()
     );
-    
-    std::cout << "🗑️  Destroyed " << count << " entities" << std::endl;  // ✅ DEBUG
     
     markedForDestruction.clear();
 }

@@ -4,13 +4,20 @@
 #include <engine/graphics/Sprite.hpp>
 #include <engine/physics/Transform.hpp>
 #include <engine/physics/Velocity.hpp>
+#include <engine/physics/Hitbox.hpp>
 #include <engine/gameplay/Controllable.hpp>
+#include <engine/gameplay/Health.hpp>
+#include <engine/gameplay/Enemy.hpp>
 #include <engine/systems/RenderSystem.hpp>
 #include <engine/systems/MovementSystem.hpp>
 #include <engine/systems/ScrollingBackgroundSystem.hpp>
 #include <engine/systems/InputSystem.hpp>
 #include <engine/systems/BoundarySystem.hpp>
 #include <engine/systems/ShootingSystem.hpp>
+#include <engine/systems/EnemySpawnSystem.hpp>
+#include <engine/systems/EnemyBehaviorSystem.hpp>
+#include <engine/systems/CollisionSystem.hpp>
+#include <engine/systems/EnemyVisualSystem.hpp>
 #include <SFML/Window/Event.hpp>
 #include <iostream>
 
@@ -23,8 +30,12 @@ int main() {
     
     // === SYSTEMS ===
     scene.addSystem(std::make_unique<InputSystem>(renderer));
-    scene.addSystem(std::make_unique<ShootingSystem>(scene, windowWidth));  // ✅ AJOUTER ICI !
+    scene.addSystem(std::make_unique<ShootingSystem>(scene, windowWidth));
+    scene.addSystem(std::make_unique<EnemySpawnSystem>(scene, windowWidth, windowHeight));
+    scene.addSystem(std::make_unique<EnemyBehaviorSystem>());
     scene.addSystem(std::make_unique<MovementSystem>());
+    scene.addSystem(std::make_unique<CollisionSystem>(scene));
+    scene.addSystem(std::make_unique<EnemyVisualSystem>());
     scene.addSystem(std::make_unique<BoundarySystem>(0.f, windowWidth - 130.f, 0.f, windowHeight - 90.f));
     scene.addSystem(std::make_unique<ScrollingBackgroundSystem>(windowWidth));
     scene.addSystem(std::make_unique<RenderSystem>());
@@ -52,9 +63,10 @@ int main() {
     playerTransform->scaleY = 0.5f;
     player.addComponent(std::move(playerTransform));
     
-    // ✅ AJOUTER CES DEUX LIGNES !
     player.addComponent(std::make_unique<Velocity>(0.f, 0.f));
     player.addComponent(std::make_unique<Controllable>(250.f));
+    player.addComponent(std::make_unique<Health>(100.f));
+    player.addComponent(std::make_unique<Hitbox>(120.f, 80.f));
 
     std::cout << "=== R-TYPE CLIENT ===" << std::endl;
     std::cout << "Controls:" << std::endl;

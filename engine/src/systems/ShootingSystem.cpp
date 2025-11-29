@@ -4,6 +4,7 @@
 #include "engine/graphics/Sprite.hpp"
 #include "engine/physics/Transform.hpp"
 #include "engine/physics/Velocity.hpp"
+#include "engine/physics/Hitbox.hpp"
 #include "engine/gameplay/Controllable.hpp"
 #include "engine/gameplay/Projectile.hpp"
 #include <SFML/Window/Keyboard.hpp>
@@ -15,31 +16,42 @@ ShootingSystem::ShootingSystem(Scene& scene, float windowWidth)
 
 void ShootingSystem::update(float deltaTime, const std::vector<std::unique_ptr<Entity>>& entities) {
     bool spacePressed = sf::Keyboard::isKeyPressed(sf::Keyboard::Space);
-    
+
+    // On fait d'abord une liste des entités "tireurs" pour éviter de modifier la scène
+    // (création de nouvelles entités) pendant qu'on parcourt directement le vecteur entities.
+    std::vector<Entity*> shooters;
+    shooters.reserve(entities.size());
     for (const auto& entity : entities) {
         auto* controllable = entity->getComponent<Controllable>();
         auto* transform = entity->getComponent<Transform>();
-        
-        if (!controllable || !transform) continue;
-        
+        if (!controllable || !transform)
+            continue;
+        shooters.push_back(entity.get());
+    }
+
+    for (Entity* entity : shooters) {
+        auto* controllable = entity->getComponent<Controllable>();
+        auto* transform = entity->getComponent<Transform>();
+        if (!controllable || !transform)
+            continue;
+
         // Gérer le cooldown
         if (controllable->currentCooldown > 0.f) {
             controllable->currentCooldown -= deltaTime;
         }
-        
+
         // ESPACE pressé : charger
         if (spacePressed) {
             chargeTime += deltaTime;
         }
-        
+
         // ESPACE relâché : tirer
         if (!spacePressed && wasSpacePressed) {
             if (controllable->canShoot && controllable->currentCooldown <= 0.f) {
-                
                 // Position de tir (devant le vaisseau)
                 float shootX = transform->x + 180.f;
                 float shootY = transform->y + 40.f;
-                
+
                 if (chargeTime >= 2.0f) {
                     // TIR CHARGÉ
                     std::cout << "🔥 CHARGED SHOT!" << std::endl;
@@ -51,14 +63,14 @@ void ShootingSystem::update(float deltaTime, const std::vector<std::unique_ptr<E
                     createNormalShot(shootX, shootY);
                     controllable->currentCooldown = 0.25f;
                 }
-                
+
                 chargeTime = 0.f;
             }
         }
     }
-    
+
     wasSpacePressed = spacePressed;
-    
+
     // Nettoyer les projectiles hors écran
     cleanupOffscreenProjectiles(entities);
 }
@@ -84,6 +96,7 @@ void ShootingSystem::createNormalShot(float x, float y) {
     
     bullet.addComponent(std::make_unique<Velocity>(700.f, 0.f));
     bullet.addComponent(std::make_unique<Projectile>(ProjectileType::Normal, 10.f, false));
+    bullet.addComponent(std::make_unique<Hitbox>(64.f, 43.f));
     
     std::cout << "  ✅ Normal bullet created!" << std::endl;
 }
@@ -109,6 +122,7 @@ void ShootingSystem::createChargedShot(float x, float y) {
     
     bullet.addComponent(std::make_unique<Velocity>(500.f, 0.f));
     bullet.addComponent(std::make_unique<Projectile>(ProjectileType::Charged, 50.f, true));
+    bullet.addComponent(std::make_unique<Hitbox>(128.f, 85.f));
     
     std::cout << "  ✅ Charged bullet created!" << std::endl;
 }

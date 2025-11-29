@@ -7,8 +7,11 @@ add_library(engine STATIC
     src/graphics/Animation.cpp
     src/physics/Transform.cpp
     src/physics/Velocity.cpp
+    src/physics/Hitbox.cpp
     src/gameplay/Controllable.cpp
     src/gameplay/Projectile.cpp 
+    src/gameplay/Health.cpp
+    src/gameplay/Enemy.cpp
     src/systems/RenderSystem.cpp
     src/systems/MovementSystem.cpp
     src/systems/ScrollingBackgroundSystem.cpp
@@ -16,6 +19,10 @@ add_library(engine STATIC
     src/systems/BoundarySystem.cpp
     src/systems/AnimationSystem.cpp
     src/systems/ShootingSystem.cpp
+    src/systems/EnemySpawnSystem.cpp
+    src/systems/EnemyBehaviorSystem.cpp
+    src/systems/CollisionSystem.cpp
+    src/systems/EnemyVisualSystem.cpp
 )
 
 target_include_directories(engine PUBLIC
